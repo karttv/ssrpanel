@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
-<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
+<!--[if IE 8]> <html lang="{{app()->getLocale()}}" class="ie8 no-js"> <![endif]-->
+<!--[if IE 9]> <html lang="{{app()->getLocale()}}" class="ie9 no-js"> <![endif]-->
 <!--[if !IE]><!-->
 <html lang="{{app()->getLocale()}}">
 <!--<![endif]-->
@@ -30,7 +30,7 @@
     <link href="/assets/layouts/layout4/css/themes/default.min.css" rel="stylesheet" type="text/css" id="style_color" />
     <link href="/assets/layouts/layout4/css/custom.min.css" rel="stylesheet" type="text/css" />
     <!-- END THEME LAYOUT STYLES -->
-    <link rel="shortcut icon" href="favicon.ico" />
+    <link rel="shortcut icon" href="{{asset('favicon.ico')}}" />
 </head>
 
 <body class="page-container-bg-solid page-header-fixed page-sidebar-closed-hide-logo">
@@ -40,7 +40,7 @@
     <div class="page-header-inner ">
         <!-- BEGIN LOGO -->
         <div class="page-logo">
-            <a href="{{url('/')}}">
+            <a href="{{url('/user')}}">
                 <img src="/assets/images/logo.png" alt="logo" class="logo-default" /> </a>
             <div class="menu-toggler sidebar-toggler">
                 <!-- DOC: Remove the above "hide" to enable the sidebar toggler button on header -->
@@ -62,11 +62,17 @@
                         <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
                             <span class="username username-hide-on-mobile"> {{Session::get('user')['username']}} </span>
                             <!-- DOC: Do not remove below empty space(&nbsp;) as its purposely used -->
-                            <img alt="" class="img-circle" src="/assets/images/avatar.jpg" /> </a>
+                            <img alt="" class="img-circle" src="/assets/images/avatar.png" /> </a>
                         <ul class="dropdown-menu dropdown-menu-default">
+                            @if(Session::get('user')['is_admin'])
+                                <li>
+                                    <a href="{{url('admin')}}"> <i class="icon-settings"></i> 管理中心 </a>
+                                </li>
+                            @endif
                             <li>
                                 <a href="{{url('user/profile')}}"> <i class="icon-user"></i> 个人资料 </a>
                             </li>
+                            <li class="divider"> </li>
                             <li>
                                 <a href="{{url('logout')}}"> <i class="icon-key"></i> 退出 </a>
                             </li>
@@ -100,32 +106,52 @@
             <!-- DOC: Set data-auto-scroll="false" to disable the sidebar from auto scrolling/focusing -->
             <!-- DOC: Set data-keep-expand="true" to keep the submenues expanded -->
             <!-- DOC: Set data-auto-speed="200" to adjust the sub menu slide up/down speed -->
-            <ul class="page-sidebar-menu   " data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200">
-                <li class="nav-item start {{Request::getRequestUri() == '/user' ? 'active open' : ''}}">
+            <ul class="page-sidebar-menu" data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200">
+                <li class="nav-item start {{in_array(Request::path(), ['/', 'user', 'user/subscribe']) ? 'active open' : ''}}">
                     <a href="{{url('user')}}" class="nav-link nav-toggle">
                         <i class="icon-home"></i>
-                        <span class="title">用户中心</span>
+                        <span class="title">{{trans('home.home')}}</span>
                         <span class="selected"></span>
                     </a>
                 </li>
-                <li class="nav-item {{Request::getRequestUri() == '/user/nodeList' ? 'active open' : ''}}">
-                    <a href="{{url('user/nodeList')}}" class="nav-link nav-toggle">
-                        <i class="icon-list"></i>
-                        <span class="title">节点列表</span>
+                <li class="nav-item {{in_array(Request::path(), ['user/goodsList', 'user/addOrder']) ? 'active open' : ''}}">
+                    <a href="{{url('user/goodsList')}}" class="nav-link nav-toggle">
+                        <i class="icon-basket"></i>
+                        <span class="title">{{trans('home.services')}}</span>
                     </a>
                 </li>
-                <li class="nav-item {{Request::getRequestUri() == '/user/trafficLog' ? 'active open' : ''}}">
+                <li class="nav-item {{in_array(Request::path(), ['user/trafficLog']) ? 'active open' : ''}}">
                     <a href="{{url('user/trafficLog')}}" class="nav-link nav-toggle">
                         <i class="icon-speedometer"></i>
-                        <span class="title">流量日志</span>
+                        <span class="title">{{trans('home.traffic_log')}}</span>
                     </a>
                 </li>
-                <li class="nav-item {{Request::getRequestUri() == '/user/invite' ? 'active open' : ''}}">
+                <li class="nav-item {{in_array(Request::path(), ['user/invite']) ? 'active open' : ''}}">
                     <a href="{{url('user/invite')}}" class="nav-link nav-toggle">
                         <i class="icon-user-follow"></i>
-                        <span class="title">邀请码</span>
+                        <span class="title">{{trans('home.invite_code')}}</span>
                     </a>
                 </li>
+                <li class="nav-item {{in_array(Request::path(), ['user/orderList']) ? 'active open' : ''}}">
+                    <a href="{{url('user/orderList')}}" class="nav-link nav-toggle">
+                        <i class="icon-wallet"></i>
+                        <span class="title">{{trans('home.invoices')}}</span>
+                    </a>
+                </li>
+                <li class="nav-item {{in_array(Request::path(), ['user/ticketList', 'user/replyTicket']) ? 'active open' : ''}}">
+                    <a href="{{url('user/ticketList')}}" class="nav-link nav-toggle">
+                        <i class="icon-question"></i>
+                        <span class="title">{{trans('home.tickets')}}</span>
+                    </a>
+                </li>
+                @if(Session::get('referral_status'))
+                <li class="nav-item {{in_array(Request::path(), ['user/referral']) ? 'active open' : ''}}">
+                    <a href="{{url('user/referral')}}" class="nav-link nav-toggle">
+                        <i class="icon-diamond"></i>
+                        <span class="title">{{trans('home.referrals')}}</span>
+                    </a>
+                </li>
+                @endif
             </ul>
             <!-- END SIDEBAR MENU -->
         </div>
@@ -136,12 +162,20 @@
     <div class="page-content-wrapper">
         @yield('content')
     </div>
+    @if(Session::get("admin"))
+        <div class="portlet light bordered" style="position:fixed;right:20px;bottom:0px;width:270px;">
+            <div class="portlet-body text-right">
+                <h5>当前身份：{{Session::get("user")['username']}}</h5>
+                <button class="btn btn-sm btn-danger" id="return_to_admin"> 返回管理页面 </button>
+            </div>
+        </div>
+    @endif
     <!-- END CONTENT -->
 </div>
 <!-- END CONTAINER -->
 <!-- BEGIN FOOTER -->
 <div class="page-footer">
-    <div class="page-footer-inner"> 2017 &copy; 胖虎 </div>
+    <div class="page-footer-inner"> 2017 &copy; <a href="https://github.com/ssrpanel/ssrpanel" target="_blank">SSRPanel</a> </div>
     <div class="scroll-to-top">
         <i class="icon-arrow-up"></i>
     </div>
@@ -162,6 +196,32 @@
 <!-- END CORE PLUGINS -->
 <!-- BEGIN PAGE LEVEL PLUGINS -->
 @yield('script')
+
+@if(Session::get("admin"))
+    <script src="/js/layer/layer.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $("#return_to_admin").click(function () {
+            $.ajax({
+                'url': "{{url("/user/switchToAdmin")}}",
+                'data': {
+                    '_token': "{{csrf_token()}}"
+                },
+                'dataType': "json",
+                'type': "POST",
+                success: function (ret) {
+                    layer.msg(ret.message, {time: 1000}, function () {
+                        if (ret.status == 'success') {
+                            window.location.href = "{{url('admin')}}";
+                        }
+                    });
+                },
+                error: function (ret) {
+                    layer.msg("操作失败：" + ret, {time: 5000});
+                }
+            });
+        });
+    </script>
+@endif
 <!-- END PAGE LEVEL PLUGINS -->
 <!-- BEGIN THEME GLOBAL SCRIPTS -->
 <script src="/assets/global/scripts/app.min.js" type="text/javascript"></script>

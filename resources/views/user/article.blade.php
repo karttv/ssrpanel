@@ -1,6 +1,6 @@
 @extends('user.layouts')
 
-@section('title', '控制面板')
+@section('title', trans('home.panel'))
 @section('content')
     <!-- BEGIN CONTENT BODY -->
     <div class="page-content">
@@ -42,18 +42,7 @@
     <!-- END CONTENT BODY -->
 @endsection
 @section('script')
-    <script src="/assets/global/plugins/counterup/jquery.waypoints.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/counterup/jquery.counterup.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/jquery-knob/js/jquery.knob.js" type="text/javascript"></script>
-
-    <script>
-        $(function() {
-            $(".knob").knob({
-                'readOnly':true,
-                'angleoffset':0,
-                'width':150,
-                'height':150,
-            });
-        });
+    <script type="text/javascript">
+        //
     </script>
 @endsection

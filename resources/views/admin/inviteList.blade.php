@@ -5,19 +5,11 @@
 @section('title', '控制面板')
 @section('content')
     <!-- BEGIN CONTENT BODY -->
-    <div class="page-content">
-        <!-- BEGIN PAGE BREADCRUMB -->
-        <ul class="page-breadcrumb breadcrumb">
-            <li>
-                <a href="{{url('admin/inviteList')}}">邀请码管理</a>
-                <i class="fa fa-circle"></i>
-            </li>
-        </ul>
-        <!-- END PAGE BREADCRUMB -->
+    <div class="page-content" style="padding-top:0;">
         <!-- BEGIN PAGE BASE CONTENT -->
         <div class="row">
             <div class="col-md-4">
-                <div class="tab-pane active" id="tab_0">
+                <div class="tab-pane active">
                     <div class="portlet light bordered">
                         <div class="portlet-title">
                             <div class="caption">
@@ -26,7 +18,8 @@
                         </div>
                         <div class="portlet-body">
                             <div class="alert alert-info">
-                                注意：每次仅生成 <strong> 5 </strong> 个邀请码
+                                <i class="fa fa-warning"></i>
+                                每次仅生成 <strong> 5 </strong> 个邀请码
                             </div>
                             <button type="submit" class="btn blue" onclick="makeInvite()"> 生 成 </button>
                         </div>
@@ -39,6 +32,13 @@
                         <div class="portlet-title">
                             <div class="caption">
                                 <span class="caption-subject font-dark bold uppercase">邀请码列表</span>
+                            </div>
+                            <div class="actions">
+                                <div class="btn-group btn-group-devided" data-toggle="buttons">
+                                    <button class="btn sbold blue" onclick="exportInvite()"> 批量导出
+                                        <i class="fa fa-download"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <div class="portlet-body">
@@ -63,9 +63,9 @@
                                             @foreach($inviteList as $invite)
                                                 <tr>
                                                     <td> {{$invite->id}} </td>
-                                                    <td> {{$invite->code}} </td>
+                                                    <td> <a href="{{url('register?aff='.Session::get('user')['id'].'&code='.$invite->code)}}" target="_blank">{{$invite->code}}</a> </td>
                                                     <td> {{$invite->dateline}} </td>
-                                                    <td> {{$invite->generator->username}} </td>
+                                                    <td> {{empty($invite->generator) ? '【账号已删除】' : $invite->generator->username}} </td>
                                                     <td> {{empty($invite->user) ? '' : $invite->user->username}} </td>
                                                     <td>
                                                         @if($invite->status == '0')
@@ -83,10 +83,10 @@
                                 </table>
                             </div>
                             <div class="row">
-                                <div class="col-md-5 col-sm-5">
+                                <div class="col-md-4 col-sm-4">
                                     <div class="dataTables_info" role="status" aria-live="polite">共 {{$inviteList->total()}} 个邀请码</div>
                                 </div>
-                                <div class="col-md-7 col-sm-7">
+                                <div class="col-md-8 col-sm-8">
                                     <div class="dataTables_paginate paging_bootstrap_full_number pull-right">
                                         {{ $inviteList->links() }}
                                     </div>
@@ -102,7 +102,7 @@
     <!-- END CONTENT BODY -->
 @endsection
 @section('script')
-    <script src="/assets/global/plugins/bootbox/bootbox.min.js" type="text/javascript"></script>
+    <script src="/js/layer/layer.js" type="text/javascript"></script>
 
     <script type="text/javascript">
         // 生成邀请码
@@ -116,15 +116,20 @@
                 data: {_token:_token},
                 dataType: 'json',
                 success: function (ret) {
-                    if (ret.status == 'success') {
-                        window.location.reload();
-                    } else {
-                        bootbox.alert(ret.message);
-                    }
+                    layer.msg(ret.message, {time:1000}, function() {
+                        if (ret.status == 'success') {
+                            window.location.reload();
+                        }
+                    });
                 }
             });
 
             return false;
+        }
+
+        // 导出邀请码
+        function exportInvite() {
+            window.location.href = '{{url('admin/exportInvite')}}';
         }
     </script>
 @endsection

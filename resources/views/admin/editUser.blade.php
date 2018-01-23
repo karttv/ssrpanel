@@ -6,18 +6,7 @@
 @section('title', '控制面板')
 @section('content')
     <!-- BEGIN CONTENT BODY -->
-    <div class="page-content">
-        <!-- BEGIN PAGE BREADCRUMB -->
-        <ul class="page-breadcrumb breadcrumb">
-            <li>
-                <a href="{{url('admin/userList')}}">账号管理</a>
-                <i class="fa fa-circle"></i>
-            </li>
-            <li>
-                <a href="javascript:;">编辑账号</a>
-            </li>
-        </ul>
-        <!-- END PAGE BREADCRUMB -->
+    <div class="page-content" style="padding-top:0;">
         <!-- BEGIN PAGE BASE CONTENT -->
         <div class="tab-pane active">
             <div class="portlet light bordered">
@@ -29,9 +18,14 @@
                                 <div class="col-md-6">
                                     <!-- BEGIN SAMPLE FORM PORTLET-->
                                     <div class="portlet light bordered">
-                                        <div class="portlet-title">
-                                            <div class="caption">
-                                                <span class="caption-subject font-dark bold uppercase">账号信息</span>
+                                        <div class="portlet-title"  style="width:100%">
+                                            <div class="caption" style="width:100%">
+                                                <div class="row">
+                                                    <span class="caption-subject font-dark bold uppercase col-md-4">账号信息</span>
+                                                    <div class="text-right col-md-8" style="">
+                                                        <button type="button" class="btn btn-sm btn-danger btn-outline" onclick="switchToUser()">切换身份</button>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="portlet-body">
@@ -77,6 +71,10 @@
                                                 <div class="col-md-8">
                                                     <div class="mt-radio-inline">
                                                         <label class="mt-radio">
+                                                            <input type="radio" name="pay_way" value="0" {{$user->pay_way == 0 ? 'checked' : ''}}> 免费
+                                                            <span></span>
+                                                        </label>
+                                                        <label class="mt-radio">
                                                             <input type="radio" name="pay_way" value="1" {{$user->pay_way == 1 ? 'checked' : ''}}> 月付
                                                             <span></span>
                                                         </label>
@@ -92,15 +90,45 @@
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <label for="balance" class="col-md-3 control-label">金额</label>
+                                                <label for="balance" class="col-md-3 control-label">级别</label>
                                                 <div class="col-md-8">
-                                                    <input type="text" class="form-control" name="balance" value="{{$user->balance}}" id="balance" placeholder="" required>
+                                                    <select class="form-control" name="level" id="level">
+                                                        @if(!$level_list->isEmpty())
+                                                            @foreach($level_list as $level)
+                                                                <option value="{{$level['level']}}" {{$user->level == $level['level'] ? 'selected' : ''}}>{{$level['level_name']}}</option>
+                                                            @endforeach
+                                                        @endif
+                                                    </select>
                                                 </div>
                                             </div>
                                             <div class="form-group">
+                                                <label for="balance" class="col-md-3 control-label">余额</label>
+                                                <div class="col-md-5">
+                                                    <p class="form-control-static"> {{$user->balance}} </p>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div style="float:right;">
+                                                        <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#handle_user_balance">充值</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!--
+                                            <div class="form-group">
+                                                <label for="score" class="col-md-3 control-label">积分</label>
+                                                <div class="col-md-5">
+                                                    <p class="form-control-static"> {{$user->score}} </p>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div style="float:right;">
+                                                        <button type="button" class="btn btn-sm btn-danger">操作</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            -->
+                                            <div class="form-group">
                                                 <label class="col-md-3 control-label">有效期</label>
                                                 <div class="col-md-8">
-                                                    <div class="input-group input-large date-picker input-daterange" data-date="2017-10-10" data-date-format="yyyy-mm-dd">
+                                                    <div class="input-group input-large input-daterange">
                                                         <input type="text" class="form-control" name="enable_time" value="{{$user->enable_time}}" id="enable_time">
                                                         <span class="input-group-addon"> 至 </span>
                                                         <input type="text" class="form-control" name="expire_time" value="{{$user->expire_time}}" id="expire_time">
@@ -108,7 +136,26 @@
                                                     <span class="help-block"> 留空默认为一年 </span>
                                                 </div>
                                             </div>
+                                            <div class="form-group">
+                                                <label for="status" class="col-md-3 control-label">状态</label>
+                                                <div class="col-md-8">
+                                                    <select class="form-control" name="status" id="status">
+                                                        <option value="1" @if($user->status == '1') selected @endif>正常</option>
+                                                        <option value="0" @if($user->status == '0') selected @endif>未激活</option>
+                                                        <option value="-1" @if($user->status == '-1') selected @endif>禁用</option>
+                                                    </select>
+                                                </div>
+                                            </div>
                                             <hr>
+                                            <div class="form-group">
+                                                <label for="gender" class="col-md-3 control-label">性别</label>
+                                                <div class="col-md-8">
+                                                    <select class="form-control" name="gender" id="gender">
+                                                        <option value="1" @if($user->gender == '1') selected @endif>男</option>
+                                                        <option value="0" @if($user->gender == '0') selected @endif>女</option>
+                                                    </select>
+                                                </div>
+                                            </div>
                                             <div class="form-group">
                                                 <label for="wechat" class="col-md-3 control-label">微信</label>
                                                 <div class="col-md-8">
@@ -145,7 +192,7 @@
                                     <div class="portlet light bordered">
                                         <div class="portlet-title">
                                             <div class="caption">
-                                                <span class="caption-subject font-dark bold">SS(R)信息</span>
+                                                <span class="caption-subject font-dark bold">SSR(R)信息</span>
                                             </div>
                                         </div>
                                         <div class="portlet-body">
@@ -171,16 +218,6 @@
                                                 <label for="method" class="col-md-3 control-label">加密方式</label>
                                                 <div class="col-md-8">
                                                     <select class="form-control" name="method" id="method">
-                                                        @foreach ($method_list as $method)
-                                                            <option value="{{$method->name}}" @if($method->name == $user->method) selected @endif>{{$method->name}}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="custom_method" class="col-md-3 control-label">自定义加密方式</label>
-                                                <div class="col-md-8">
-                                                    <select class="form-control" name="custom_method" id="custom_method">
                                                         @foreach ($method_list as $method)
                                                             <option value="{{$method->name}}" @if($method->name == $user->method) selected @endif>{{$method->name}}</option>
                                                         @endforeach
@@ -217,12 +254,6 @@
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <label for="protocol_param" class="col-md-3 control-label">协议参数</label>
-                                                <div class="col-md-8">
-                                                    <input type="text" class="form-control" name="protocol_param" value="{{$user->protocol_param}}" id="protocol_param" placeholder="">
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
                                                 <label for="obfs" class="col-md-3 control-label">混淆</label>
                                                 <div class="col-md-8">
                                                     <select class="form-control" name="obfs" id="obfs">
@@ -233,9 +264,15 @@
                                                 </div>
                                             </div>
                                             <div class="form-group">
+                                                <label for="protocol_param" class="col-md-3 control-label">协议参数</label>
+                                                <div class="col-md-8">
+                                                    <input type="text" class="form-control" name="protocol_param" value="{{$user->protocol_param}}" id="protocol_param" placeholder="节点单端口时，请务必留空">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
                                                 <label for="obfs_param" class="col-md-3 control-label">混淆参数</label>
                                                 <div class="col-md-8">
-                                                    <textarea class="form-control" rows="5" name="obfs_param" id="obfs_param">{{$user->obfs_param}}</textarea>
+                                                    <textarea class="form-control" rows="5" name="obfs_param" id="obfs_param" placeholder="节点单端口时，请务必留空">{{$user->obfs_param}}</textarea>
                                                 </div>
                                             </div>
                                             <hr>
@@ -265,15 +302,44 @@
                         </div>
                         <div class="form-actions">
                             <div class="row">
-                                <div class="row">
-                                    <div class="col-md-offset-6 col-md-4">
-                                        <button type="submit" class="btn green">提 交</button>
-                                    </div>
+                                <div class="col-md-offset-6">
+                                    <button type="submit" class="btn green">提 交</button>
                                 </div>
                             </div>
                         </div>
                     </form>
                     <!-- END FORM-->
+                </div>
+            </div>
+
+            <!-- 余额充值 -->
+            <div id="handle_user_balance" class="modal fade" tabindex="-1" data-focus-on="input:first" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog" style="width:300px;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                            <h4 class="modal-title">充值</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert alert-danger" style="display: none;" id="msg"></div>
+                            <!-- BEGIN FORM-->
+                            <form action="#" method="post" class="form-horizontal">
+                                <div class="form-body">
+                                    <div class="form-group">
+                                        <label for="amount" class="col-md-4 control-label"> 充值金额 </label>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control" name="amount" id="amount" placeholder="填入负值则会扣余额" onkeydown="if(event.keyCode==13){return false;}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                            <!-- END FORM-->
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" data-dismiss="modal" class="btn dark btn-outline">关闭</button>
+                            <button type="button" class="btn red btn-outline" onclick="return handleUserBalance();">充值</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -284,14 +350,37 @@
 @section('script')
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootbox/bootbox.min.js" type="text/javascript"></script>
+    <script src="/js/layer/layer.js" type="text/javascript"></script>
 
     <script type="text/javascript">
-        // 过期时间
-        $(".date-picker").datepicker({
-            language: 'zh-CN',
-            autoclose: true,
-            todayHighlight: true
+        // 切换用户身份
+        function switchToUser() {
+            $.ajax({
+                'url': "{{url("/admin/switchToUser")}}",
+                'data': {
+                    'user_id': '{{$user->id}}',
+                    '_token': '{{csrf_token()}}'
+                },
+                'dataType': "json",
+                'type': "POST",
+                success: function (ret) {
+                    layer.msg(ret.message, {time: 1000}, function () {
+                        if (ret.status == 'success') {
+                            window.location.href = "/user";
+                        }
+                    });
+                }
+            });
+        }
+
+        // 有效期
+        $('.input-daterange input').each(function() {
+            $(this).datepicker({
+                language: 'zh-CN',
+                autoclose: true,
+                todayHighlight: true,
+                format: 'yyyy-mm-dd'
+            });
         });
 
         // ajax同步提交
@@ -303,12 +392,16 @@
             var usage = $("input:radio[name='usage']:checked").val();
             var pay_way = $("input:radio[name='pay_way']:checked").val();
             var balance = $('#balance').val();
+            var score = $('#score').val();
+            var status = $('#status').val();
             var enable_time = $('#enable_time').val();
             var expire_time = $('#expire_time').val();
+            var gender = $('#gender').val();
             var wechat = $('#wechat').val();
             var qq = $('#qq').val();
             var is_admin = $('#is_admin').val();
             var remark = $('#remark').val();
+            var level = $("#level option:selected").val();
             var port = $('#port').val();
             var passwd = $('#passwd').val();
             var method = $('#method').val();
@@ -326,16 +419,14 @@
                 type: "POST",
                 url: "{{url('admin/editUser')}}",
                 async: false,
-                data: {_token:_token, id:id, username: username, password:password, usage:usage, pay_way:pay_way, balance:balance, enable_time:enable_time, expire_time:expire_time, wechat:wechat, qq:qq, is_admin:is_admin, remark:remark, port:port, passwd:passwd, method:method, custom_method:custom_method, transfer_enable:transfer_enable, enable:enable, protocol:protocol, protocol_param:protocol_param, obfs:obfs, obfs_param:obfs_param, speed_limit_per_con:speed_limit_per_con, speed_limit_per_user:speed_limit_per_user},
+                data: {_token:_token, id:id, username: username, password:password, usage:usage, pay_way:pay_way, balance:balance, score:score, status:status, enable_time:enable_time, expire_time:expire_time, gender:gender, wechat:wechat, qq:qq, is_admin:is_admin, remark:remark, level:level, port:port, passwd:passwd, method:method, custom_method:custom_method, transfer_enable:transfer_enable, enable:enable, protocol:protocol, protocol_param:protocol_param, obfs:obfs, obfs_param:obfs_param, speed_limit_per_con:speed_limit_per_con, speed_limit_per_user:speed_limit_per_user},
                 dataType: 'json',
                 success: function (ret) {
-                    if (ret.status == 'success') {
-                        bootbox.alert(ret.message, function(){
+                    layer.msg(ret.message, {time:1000}, function() {
+                        if (ret.status == 'success') {
                             window.location.href = '{{url('admin/userList?page=') . Request::get('page')}}';
-                        });
-                    } else {
-                        bootbox.alert(ret.message);
-                    }
+                        }
+                    });
                 }
             });
 
@@ -344,8 +435,46 @@
 
         // 生成随机密码
         function makePasswd() {
-            $.get("{{url('makePasswd')}}",  function(ret) {
+            $.get("{{url('admin/makePasswd')}}",  function(ret) {
                 $("#passwd").val(ret);
+            });
+        }
+
+        // 余额充值
+        function handleUserBalance() {
+            var amount = $("#amount").val();
+            var reg = /^(\-?)\d+(\.\d+)?$/; //只可以是正负数字
+
+            if (amount == '' || amount == 0 || !reg.test(amount)) {
+                $("#msg").show().html("请输入充值金额");
+                $("#name").focus();
+                return false;
+            }
+
+            $.ajax({
+                url:'{{url('admin/handleUserBalance')}}',
+                type:"POST",
+                data:{_token:'{{csrf_token()}}', user_id:'{{Request::get('id')}}', amount:amount},
+                beforeSend:function(){
+                    $("#msg").show().html("充值中...");
+                },
+                success:function(ret){
+                    if (ret.status == 'fail') {
+                        $("#msg").show().html(ret.message);
+                        return false;
+                    } else {
+                        layer.msg(ret.message, {time:1000}, function() {
+                            if (ret.status == 'success') {
+                                $("#handle_user_balance").modal("hide");
+                                window.location.reload();
+                            }
+                        });
+                    }
+                },
+                error:function(){
+                    $("#msg").show().html("请求错误，请重试");
+                },
+                complete:function(){}
             });
         }
     </script>

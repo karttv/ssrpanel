@@ -6,18 +6,7 @@
 @section('title', '控制面板')
 @section('content')
     <!-- BEGIN CONTENT BODY -->
-    <div class="page-content">
-        <!-- BEGIN PAGE BREADCRUMB -->
-        <ul class="page-breadcrumb breadcrumb">
-            <li>
-                <a href="{{url('admin/userList')}}">账号管理</a>
-                <i class="fa fa-circle"></i>
-            </li>
-            <li>
-                <a href="{{url('admin/addUser')}}">添加账号</a>
-            </li>
-        </ul>
-        <!-- END PAGE BREADCRUMB -->
+    <div class="page-content" style="padding-top:0;">
         <!-- BEGIN PAGE BASE CONTENT -->
         <div class="tab-pane">
             <div class="portlet light bordered">
@@ -35,7 +24,7 @@
                                             </div>
                                         </div>
                                         <div class="portlet-body">
-                                            <div class="form-group">
+                                            <div class="form-group has-error">
                                                 <label for="username" class="col-md-3 control-label">用户名</label>
                                                 <div class="col-md-8">
                                                     <input type="text" class="form-control" name="username" id="username" placeholder="" autofocus required>
@@ -45,7 +34,7 @@
                                             <div class="form-group">
                                                 <label for="password" class="col-md-3 control-label">密码</label>
                                                 <div class="col-md-8">
-                                                    <input type="text" class="form-control" name="password" value="123456" id="password" placeholder="">
+                                                    <input type="text" class="form-control" name="password" value="" id="password" placeholder="留空则自动生成随机密码">
                                                 </div>
                                             </div>
                                             <div class="form-group">
@@ -57,7 +46,7 @@
                                                             <span></span>
                                                         </label>
                                                         <label class="mt-radio">
-                                                            <input type="radio" name="usage" value="2" checked> 电脑
+                                                            <input type="radio" name="usage" value="2"> 电脑
                                                             <span></span>
                                                         </label>
                                                         <label class="mt-radio">
@@ -65,7 +54,7 @@
                                                             <span></span>
                                                         </label>
                                                         <label class="mt-radio">
-                                                            <input type="radio" name="usage" value="4"> 其他
+                                                            <input type="radio" name="usage" value="4" checked> 其他
                                                             <span></span>
                                                         </label>
                                                     </div>
@@ -76,6 +65,10 @@
                                                 <div class="col-md-8">
                                                     <div class="mt-radio-inline">
                                                         <label class="mt-radio">
+                                                            <input type="radio" name="pay_way" value="0" checked> 免费
+                                                            <span></span>
+                                                        </label>
+                                                        <label class="mt-radio">
                                                             <input type="radio" name="pay_way" value="1"> 月付
                                                             <span></span>
                                                         </label>
@@ -84,22 +77,28 @@
                                                             <span></span>
                                                         </label>
                                                         <label class="mt-radio">
-                                                            <input type="radio" name="pay_way" value="3" checked> 年付
+                                                            <input type="radio" name="pay_way" value="3"> 年付
                                                             <span></span>
                                                         </label>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <label for="balance" class="col-md-3 control-label">金额</label>
+                                                <label for="balance" class="col-md-3 control-label">级别</label>
                                                 <div class="col-md-8">
-                                                    <input type="text" class="form-control" name="balance" value="0" id="balance" placeholder="" required>
+                                                    <select class="form-control" name="level" id="level">
+                                                        @if(!$level_list->isEmpty())
+                                                            @foreach($level_list as $ele)
+                                                                <option value="{{$ele['level']}}">{{$ele['level_name']}}</option>
+                                                            @endforeach
+                                                        @endif
+                                                    </select>
                                                 </div>
                                             </div>
                                             <div class="form-group">
                                                 <label class="col-md-3 control-label">有效期</label>
                                                 <div class="col-md-8">
-                                                    <div class="input-group input-large date-picker input-daterange" data-date="2017-10-10" data-date-format="yyyy-mm-dd">
+                                                    <div class="input-group input-large input-daterange">
                                                         <input type="text" class="form-control" name="enable_time" id="enable_time">
                                                         <span class="input-group-addon"> 至 </span>
                                                         <input type="text" class="form-control" name="expire_time" id="expire_time">
@@ -108,6 +107,15 @@
                                                 </div>
                                             </div>
                                             <hr>
+                                            <div class="form-group">
+                                                <label for="gender" class="col-md-3 control-label">性别</label>
+                                                <div class="col-md-8">
+                                                    <select class="form-control" name="gender" id="gender">
+                                                        <option value="1" selected>男</option>
+                                                        <option value="0">女</option>
+                                                    </select>
+                                                </div>
+                                            </div>
                                             <div class="form-group">
                                                 <label for="wechat" class="col-md-3 control-label">微信</label>
                                                 <div class="col-md-8">
@@ -144,7 +152,7 @@
                                     <div class="portlet light bordered">
                                         <div class="portlet-title">
                                             <div class="caption">
-                                                <span class="caption-subject font-dark bold">SS(R)信息</span>
+                                                <span class="caption-subject font-dark bold">SSR(R)信息</span>
                                             </div>
                                         </div>
                                         <div class="portlet-body">
@@ -158,7 +166,7 @@
                                                 <label for="passwd" class="col-md-3 control-label">密码</label>
                                                 <div class="col-md-8">
                                                     <div class="input-group">
-                                                        <input class="form-control" type="text" name="passwd" id="passwd" placeholder="不填则自动生成" />
+                                                        <input class="form-control" type="text" name="passwd" id="passwd" placeholder="留空则自动生成随机密码" />
                                                         <span class="input-group-btn">
                                                             <button class="btn btn-success" type="button" onclick="makePasswd()">
                                                                 <i class="fa fa-arrow-left fa-fw" /></i> 生成 </button>
@@ -166,20 +174,10 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="form-group">
+                                            <div class="form-group has-error">
                                                 <label for="method" class="col-md-3 control-label">加密方式</label>
                                                 <div class="col-md-8">
                                                     <select class="form-control" name="method" id="method">
-                                                        @foreach ($method_list as $method)
-                                                            <option value="{{$method->name}}" @if($method->is_default) selected @endif>{{$method->name}}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="custom_method" class="col-md-3 control-label">自定义加密方式</label>
-                                                <div class="col-md-8">
-                                                    <select class="form-control" name="custom_method" id="custom_method">
                                                         @foreach ($method_list as $method)
                                                             <option value="{{$method->name}}" @if($method->is_default) selected @endif>{{$method->name}}</option>
                                                         @endforeach
@@ -205,7 +203,7 @@
                                                 </div>
                                             </div>
                                             <hr>
-                                            <div class="form-group">
+                                            <div class="form-group has-error">
                                                 <label for="protocol" class="col-md-3 control-label">协议</label>
                                                 <div class="col-md-8">
                                                     <select class="form-control" name="protocol" id="protocol">
@@ -215,13 +213,7 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="form-group">
-                                                <label for="protocol_param" class="col-md-3 control-label">协议参数</label>
-                                                <div class="col-md-8">
-                                                    <input type="text" class="form-control" name="protocol_param" id="protocol_param" placeholder="">
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
+                                            <div class="form-group has-error">
                                                 <label for="obfs" class="col-md-3 control-label">混淆</label>
                                                 <div class="col-md-8">
                                                     <select class="form-control" name="obfs" id="obfs">
@@ -232,9 +224,15 @@
                                                 </div>
                                             </div>
                                             <div class="form-group">
+                                                <label for="protocol_param" class="col-md-3 control-label">协议参数</label>
+                                                <div class="col-md-8">
+                                                    <input type="text" class="form-control" name="protocol_param" id="protocol_param" placeholder="节点单端口时，请务必留空">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
                                                 <label for="obfs_param" class="col-md-3 control-label">混淆参数</label>
                                                 <div class="col-md-8">
-                                                    <textarea class="form-control" rows="3" name="obfs_param" id="obfs_param"></textarea>
+                                                    <textarea class="form-control" rows="3" name="obfs_param" id="obfs_param" placeholder="节点单端口时，请务必留空"></textarea>
                                                 </div>
                                             </div>
                                             <hr>
@@ -264,14 +262,9 @@
                         </div>
                         <div class="form-actions">
                             <div class="row">
-                                <div class="col-md-6">
-                                    <div class="row">
-                                        <div class="col-md-offset-11 col-md-4">
-                                            <button type="submit" class="btn green">提 交</button>
-                                        </div>
-                                    </div>
+                                <div class="col-md-offset-6">
+                                    <button type="submit" class="btn green">提 交</button>
                                 </div>
-                                <div class="col-md-6"> </div>
                             </div>
                         </div>
                     </form>
@@ -286,14 +279,17 @@
 @section('script')
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootbox/bootbox.min.js" type="text/javascript"></script>
+    <script src="/js/layer/layer.js" type="text/javascript"></script>
 
     <script type="text/javascript">
-        // 过期时间
-        $(".date-picker").datepicker({
-            language: 'zh-CN',
-            autoclose: true,
-            todayHighlight: true
+        // 有效期
+        $('.input-daterange input').each(function() {
+            $(this).datepicker({
+                language: 'zh-CN',
+                autoclose: true,
+                todayHighlight: true,
+                format: 'yyyy-mm-dd'
+            });
         });
 
         // ajax同步提交
@@ -303,13 +299,14 @@
             var password = $('#password').val();
             var usage = $("input:radio[name='usage']:checked").val();
             var pay_way = $("input:radio[name='pay_way']:checked").val();
-            var balance = $('#balance').val();
             var enable_time = $('#enable_time').val();
             var expire_time = $('#expire_time').val();
+            var gender = $('#gender').val();
             var wechat = $('#wechat').val();
             var qq = $('#qq').val();
             var is_admin = $('#is_admin').val();
             var remark = $('#remark').val();
+            var level = $("#level option:selected").val();
             var port = $('#port').val();
             var passwd = $('#passwd').val();
             var method = $('#method').val();
@@ -327,16 +324,14 @@
                 type: "POST",
                 url: "{{url('admin/addUser')}}",
                 async: false,
-                data: {_token:_token, username: username, password:password, usage:usage, pay_way:pay_way, balance:balance, enable_time:enable_time, expire_time:expire_time, wechat:wechat, qq:qq, is_admin:is_admin, remark:remark, port:port, passwd:passwd, method:method, custom_method:custom_method, transfer_enable:transfer_enable, enable:enable, protocol:protocol, protocol_param:protocol_param, obfs:obfs, obfs_param:obfs_param, speed_limit_per_con:speed_limit_per_con, speed_limit_per_user:speed_limit_per_user},
+                data: {_token:_token, username: username, password:password, usage:usage, pay_way:pay_way, enable_time:enable_time, expire_time:expire_time, gender:gender, wechat:wechat, qq:qq, is_admin:is_admin, remark:remark, level:level, port:port, passwd:passwd, method:method, custom_method:custom_method, transfer_enable:transfer_enable, enable:enable, protocol:protocol, protocol_param:protocol_param, obfs:obfs, obfs_param:obfs_param, speed_limit_per_con:speed_limit_per_con, speed_limit_per_user:speed_limit_per_user},
                 dataType: 'json',
                 success: function (ret) {
-                    if (ret.status == 'success') {
-                        bootbox.alert(ret.message, function () {
+                    layer.msg(ret.message, {time:1000}, function() {
+                        if (ret.status == 'success') {
                             window.location.href = '{{url('admin/userList')}}';
-                        });
-                    } else {
-                        bootbox.alert(ret.message);
-                    }
+                        }
+                    });
                 }
             });
 
@@ -345,7 +340,7 @@
 
         // 生成随机密码
         function makePasswd() {
-            $.get("{{url('makePasswd')}}",  function(ret) {
+            $.get("{{url('admin/makePasswd')}}",  function(ret) {
                 $("#passwd").val(ret);
             });
         }
