@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Models\UserSubscribe;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -17,7 +18,7 @@ class Controller extends BaseController
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
     // 生成SS密码
-    public function makeRandStr($length = 6)
+    public function makeRandStr($length = 8)
     {
         // 密码字符集，可任意添加你需要的字符
         $chars = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789';
@@ -27,6 +28,17 @@ class Controller extends BaseController
         }
 
         return $char;
+    }
+
+    // 生成订阅地址的唯一码
+    public function makeSubscribeCode()
+    {
+        $code = $this->makeRandStr(5);
+        if (UserSubscribe::query()->where('code', $code)->exists()) {
+            $code = $this->makeSubscribeCode();
+        }
+
+        return $code;
     }
 
     // base64加密（处理URL）

@@ -2,6 +2,8 @@
 
 @section('css')
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
 @endsection
 @section('title', '控制面板')
 @section('content')
@@ -108,6 +110,17 @@
                                             </div>
                                             <hr>
                                             <div class="form-group">
+                                                <label for="status" class="col-md-3 control-label">标签</label>
+                                                <div class="col-md-8">
+                                                    <select id="labels" class="form-control select2-multiple" name="labels[]" multiple>
+                                                        @foreach($label_list as $label)
+                                                            <option value="{{$label->id}}">{{$label->name}}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <div class="form-group">
                                                 <label for="gender" class="col-md-3 control-label">性别</label>
                                                 <div class="col-md-8">
                                                     <select class="form-control" name="gender" id="gender">
@@ -159,7 +172,16 @@
                                             <div class="form-group">
                                                 <label for="port" class="col-md-3 control-label">端口</label>
                                                 <div class="col-md-8">
-                                                    <input type="text" class="form-control" name="port" value="{{$last_port}}" id="port" placeholder="" aria-required="true" aria-invalid="true" aria-describedby="number-error" required>
+                                                    @if($is_rand_port)
+                                                        <div class="input-group">
+                                                            <input class="form-control" type="text" name="port" value="{{$last_port}}" id="port" />
+                                                            <span class="input-group-btn">
+                                                                <button class="btn btn-success" type="button" onclick="makePort()"> 生成 </button>
+                                                            </span>
+                                                        </div>
+                                                    @else
+                                                        <input type="text" class="form-control" name="port" value="{{$last_port}}" id="port" placeholder="" aria-required="true" aria-invalid="true" aria-describedby="number-error" required>
+                                                    @endif
                                                 </div>
                                             </div>
                                             <div class="form-group">
@@ -168,8 +190,7 @@
                                                     <div class="input-group">
                                                         <input class="form-control" type="text" name="passwd" id="passwd" placeholder="留空则自动生成随机密码" />
                                                         <span class="input-group-btn">
-                                                            <button class="btn btn-success" type="button" onclick="makePasswd()">
-                                                                <i class="fa fa-arrow-left fa-fw" /></i> 生成 </button>
+                                                            <button class="btn btn-success" type="button" onclick="makePasswd()"> 生成 </button>
                                                         </span>
                                                     </div>
                                                 </div>
@@ -279,9 +300,16 @@
 @section('script')
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/js/layer/layer.js" type="text/javascript"></script>
 
     <script type="text/javascript">
+        // 用户标签选择器
+        $('#labels').select2({
+            placeholder: '设置后则可见相同标签的节点',
+            allowClear: true
+        });
+
         // 有效期
         $('.input-daterange input').each(function() {
             $(this).datepicker({
@@ -299,6 +327,7 @@
             var password = $('#password').val();
             var usage = $("input:radio[name='usage']:checked").val();
             var pay_way = $("input:radio[name='pay_way']:checked").val();
+            var labels = $('#labels').val();
             var enable_time = $('#enable_time').val();
             var expire_time = $('#expire_time').val();
             var gender = $('#gender').val();
@@ -310,7 +339,6 @@
             var port = $('#port').val();
             var passwd = $('#passwd').val();
             var method = $('#method').val();
-            var custom_method = $('#custom_method').val();
             var transfer_enable = $('#transfer_enable').val();
             var enable = $('#enable').val();
             var protocol = $('#protocol').val();
@@ -324,7 +352,7 @@
                 type: "POST",
                 url: "{{url('admin/addUser')}}",
                 async: false,
-                data: {_token:_token, username: username, password:password, usage:usage, pay_way:pay_way, enable_time:enable_time, expire_time:expire_time, gender:gender, wechat:wechat, qq:qq, is_admin:is_admin, remark:remark, level:level, port:port, passwd:passwd, method:method, custom_method:custom_method, transfer_enable:transfer_enable, enable:enable, protocol:protocol, protocol_param:protocol_param, obfs:obfs, obfs_param:obfs_param, speed_limit_per_con:speed_limit_per_con, speed_limit_per_user:speed_limit_per_user},
+                data: {_token:_token, username: username, password:password, usage:usage, pay_way:pay_way, labels:labels, enable_time:enable_time, expire_time:expire_time, gender:gender, wechat:wechat, qq:qq, is_admin:is_admin, remark:remark, level:level, port:port, passwd:passwd, method:method, transfer_enable:transfer_enable, enable:enable, protocol:protocol, protocol_param:protocol_param, obfs:obfs, obfs_param:obfs_param, speed_limit_per_con:speed_limit_per_con, speed_limit_per_user:speed_limit_per_user},
                 dataType: 'json',
                 success: function (ret) {
                     layer.msg(ret.message, {time:1000}, function() {
@@ -336,6 +364,13 @@
             });
 
             return false;
+        }
+
+        // 生成随机端口
+        function makePort() {
+            $.get("{{url('admin/makePort')}}",  function(ret) {
+                $("#port").val(ret);
+            });
         }
 
         // 生成随机密码

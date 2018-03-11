@@ -1,32 +1,33 @@
 ## 项目描述
 ````
-1.多节点账号管理面板
-2.需配合SSR 3.4 Python版后端使用
+1.多节点账号管理面板，兼容SS、SSRR
+2.需配合SSR或SSRR版后端使用
 3.强大的管理后台、美观的界面、简单易用的开关、支持移动端自适应
 4.内含简单的购物、卡券、邀请码、推广返利&提现、文章管理、工单等模块
-5.节点支持分组，不同级别的用户可以看到不同级别分组的节点
+5.用户、节点标签化，不同用户可见不同节点
 6.SS配置转SSR配置，轻松一键导入SS账号
-7.流量日志、单机单节点日志分析功能
-8.强大的定时任务
+7.单机单节点日志分析功能
+8.账号、节点24小时和近30天内的流量监控
 9.所有邮件投递都有记录
-10.账号临近到期、流量不够都会自动发邮件提醒，自动禁用到期、流量异常的账号，自动清除日志
+10.账号临近到期、流量不够会自动发邮件提醒，自动禁用到期、流量异常的账号，自动清除日志等各种强大的定时任务
 11.后台一键添加加密方式、混淆、协议、等级
 12.强大的后台一键配置功能
-13.屏蔽常见爬虫
+13.屏蔽常见爬虫、屏蔽机器人
 14.支持单端口多用户
-15.账号、节点24小时和近30天内的流量监控
-16.支持节点订阅功能，可一键封禁账号订阅地址
-17.节点宕机提醒（邮件+ServerChan微信提醒）
-18.Paypal在线支付接口
-19.兼容SS、SSRR
-20.支持多国语言
+15.支持节点订阅功能，可一键封禁账号订阅地址
+16.节点宕机提醒（邮件、ServerChan微信提醒）
+17.支持多国语言，自带英文语言包
+18.订阅防投毒机制
+19.自动释放端口机制，防止端口被大量长期占用
+20.封IP段
 ````
 
 ## 演示&交流
 ````
-演示站：http://www.ssrpanel.com （用户名：admin 密码：123456，请勿修改密码）
-telegram频道：https://t.me/ssrpanel
-telegram群组：https://t.me/chatssrpanel
+官方站：http://www.ssrpanel.com
+演示站：http://demo.ssrpanel.com （用户名：admin 密码：123456，请勿修改密码）
+telegram订阅频道：https://t.me/ssrpanel
+telegram千人讨论群已解散，不用加了，有问题提issues
 ````
 
 ## 捐赠
@@ -70,19 +71,18 @@ chmod -R 777 storage/
 
 ##### 连接数据库
 ````
-先自行创建一个utf8mb4的数据库，
-然后编辑config/database.php，编辑mysql选项中如下配置值：
-host、port、database、username、password
+1.创建一个utf8mb4的数据库
+2.编辑config/database.php，编辑mysql选项中如下配置值：host、port、database、username、password
 ````
 
 ##### 自动部署
 
-###### 表结构迁移
+###### 迁移(创建表结构)
 ````
 php artisan migrate
 ````
 
-###### 数据播种
+###### 播种(填充数据)
 ````
 php artisan db:seed --class=ConfigTableSeeder
 php artisan db:seed --class=CountryTableSeeder
@@ -91,9 +91,9 @@ php artisan db:seed --class=SsConfigTableSeeder
 php artisan db:seed --class=UserTableSeeder
 ````
 
-##### 手工迁移数据
+##### 手工部署
 ````
-手动将sql/db.sql导入到创建好的数据库
+迁移未经完整测试，可能存在BUG，可以手动将sql/db.sql导入到创建好的数据库
 ````
 
 #### 加入NGINX的URL重写规则
@@ -125,11 +125,16 @@ service nginx restart
 service php-fpm restart
 ````
 
-## 定时任务（发邮件、流量统计、自动任务全部需要用到）
+## 定时任务
 ````
-crontab加入如下命令（请自行修改ssrpanel路径）：
-（表示每分钟都执行定时任务，具体什么任务什么时候执行程序里已经定义了，请不要乱改，否则流量统计数据可能出错）
+crontab加入如下命令（请自行修改php、ssrpanel路径）：
 * * * * * php /home/wwwroot/ssrpanel/artisan schedule:run >> /dev/null 2>&1
+
+注意运行权限，必须跟ssrpanel项目权限一致：
+例如用lnmp的话默认权限用户组是 www:www，则添加定时任务是这样的：
+crontab -e -u www
+
+如果用crontab -e 默认是root权限，则整个ssrpanel项目也要用root:root用户组
 ````
 
 ## 邮件配置
@@ -221,6 +226,8 @@ chmod a+x fix_git.sh && sh fix_git.sh
 
 如果本地自行改了文件，想用回原版代码，请先备份好 config/database.php，然后执行以下命令：
 chmod a+x update.sh && sh update.sh
+
+如果更新完代码各种错误，请先执行一遍 php composer.phar install
 ````
 
 ## 网卡流量监控一键脚本（Vnstat）
@@ -239,7 +246,7 @@ vim user-config.json
         "passwd": "统一认证密码", // 例如 SSRP4ne1，推荐不要出现除大小写字母数字以外的任何字符
         "method": "统一认证加密方式", // 例如 aes-128-ctr
         "protocol": "统一认证协议", // 可选值：orgin、verify_deflate、auth_sha1_v4、auth_aes128_md5（推荐）、auth_aes128_sha1（推荐）、auth_chain_a（强烈推荐）
-        "protocol_param": "#",
+        "protocol_param": "#", // #号前面带上数字，则可以限制在线每个用户的最多在线设备数，仅限 auth_chain_a 协议下有效，例如： 3# 表示限制最多3个设备在线
         "obfs": "tls1.2_ticket_auth", // 可选值：plain、http_simple（该值下客户端可用http_post）、random_head、tls1.2_ticket_auth（强烈推荐）
         "obfs_param": ""
     },
