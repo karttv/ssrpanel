@@ -1102,7 +1102,7 @@ class AdminController extends Controller
             $protocol_param = $node->single ? $user->port . ':' . $user->passwd : $user->protocol_param;
 
             $ssr_str = '';
-            $ssr_str .= $node->server . ':' . ($node->single ? $node->single_port : $user->port);
+            $ssr_str .= ($node->server ? $node->server : $node->ip) . ':' . ($node->single ? $node->single_port : $user->port);
             $ssr_str .= ':' . ($node->single ? $node->single_protocol : $user->protocol) . ':' . ($node->single ? $node->single_method : $user->method);
             $ssr_str .= ':' . ($node->single ? $node->single_obfs : $user->obfs) . ':' . ($node->single ? base64url_encode($node->single_passwd) : base64url_encode($user->passwd));
             $ssr_str .= '/?obfsparam=' . ($node->single ? '' : base64url_encode($obfs_param));
@@ -1122,7 +1122,7 @@ class AdminController extends Controller
             $ss_scheme = 'ss://' . $ss_str;
 
             // 生成文本配置信息
-            $txt = "服务器：" . $node->server . "\r\n";
+            $txt = "服务器：" . ($node->server ? $node->server : $node->ip) . "\r\n";
             $txt .= "远程端口：" . ($node->single ? $node->single_port : $user->port) . "\r\n";
             $txt .= "密码：" . ($node->single ? $node->single_passwd : $user->passwd) . "\r\n";
             $txt .= "加密方法：" . ($node->single ? $node->single_method : $user->method) . "\r\n";
@@ -1761,6 +1761,23 @@ class AdminController extends Controller
         $view['list'] = $list;
 
         return Response::view('admin/applyDetail', $view);
+    }
+
+    // 订单列表
+    public function orderList(Request $request)
+    {
+        $username = $request->get('username');
+        $status = $request->get('status');
+
+        $orderList = Order::query()->with(['user', 'goods', 'coupon'])->orderBy('oid', 'desc')->paginate(10);
+        foreach ($orderList as $order) {
+            $order->totalOriginalPrice = $order->totalOriginalPrice / 100;
+            $order->totalPrice = $order->totalPrice / 100;
+        }
+
+        $view['orderList'] = $orderList;
+
+        return Response::view('admin/orderList', $view);
     }
 
     // 设置提现申请状态
