@@ -60,89 +60,34 @@
                                     </a>
                                     <div class="tabbable-line">
                                         <ul class="nav nav-tabs ">
-                                            <li class="active">
-                                                <a href="#tools1" data-toggle="tab"> <i class="fa fa-apple"></i> Mac </a>
-                                            </li>
-                                            <li>
-                                                <a href="#tools2" data-toggle="tab"> <i class="fa fa-windows"></i> Windows </a>
-                                            </li>
-                                            <li>
-                                                <a href="#tools3" data-toggle="tab"> <i class="fa fa-linux"></i> Linux </a>
-                                            </li>
-                                            <li>
-                                                <a href="#tools4" data-toggle="tab"> <i class="fa fa-apple"></i> iOS </a>
-                                            </li>
-                                            <li>
-                                                <a href="#tools5" data-toggle="tab"> <i class="fa fa-android"></i> Android </a>
-                                            </li>
-                                            <li>
-                                                <a href="#tools6" data-toggle="tab"> <i class="fa fa-gamepad"></i> Games </a>
-                                            </li>
+	                                        @foreach ($tutorialList as $tutorial)
+		                                        <li class="nav-item" role="presentation">
+			                                        <a @if($loop->first)class="active" @endif href="#tools{{$loop->iteration}}" data-toggle="tab">
+				                                        <i class="fa {{$tutorial->logo}}" aria-hidden="true"></i>{{$tutorial->title}}</a>
+		                                        </li>
+	                                        @endforeach
                                         </ul>
                                         <div class="tab-content" style="font-size:16px;">
-                                            <div class="tab-pane active" id="tools1">
-                                                @if($tutorial1)
-                                                    {!!$tutorial1->content!!}
-                                                @else
-                                                    <div style="text-align: center;">
-                                                        <h3>暂无教程</h3>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                            <div class="tab-pane" id="tools2">
-                                                @if($tutorial2)
-                                                    {!!$tutorial2->content!!}
-                                                @else
-                                                    <div style="text-align: center;">
-                                                        <h3>暂无教程</h3>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                            <div class="tab-pane" id="tools3">
-                                                @if($tutorial3)
-                                                    {!!$tutorial3->content!!}
-                                                @else
-                                                    <div style="text-align: center;">
-                                                        <h3>暂无教程</h3>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                            <div class="tab-pane" id="tools4">
-                                                @if(Agent::is('iPhone') || Agent::is('iPad'))
-                                                    @if(Agent::is('Safari'))
-                                                        <ul class=" list-paddingleft-2"><li> <a href="{{$ipa_list}}" target="_blank">点击此处在线安装</a></li></ul>
-                                                    @else
-                                                        <ul class=" list-paddingleft-2"><li> <a href="javascript:onlineInstallWarning();">点击此处在线安装</a></li></ul>
-                                                    @endif
-                                                    @if($tutorial4)
-                                                        {!!$tutorial4->content!!}
-                                                    @else
-                                                        <div style="text-align: center;">
-                                                            <h3>暂无教程</h3>
-                                                        </div>
-                                                    @endif
-                                                @else
-                                                    <ul class=" list-paddingleft-2"><li> 请使用 Safari浏览器 访问本页面 </li></ul>
-                                                @endif
-                                            </div>
-                                            <div class="tab-pane" id="tools5">
-                                                @if($tutorial5)
-                                                    {!!$tutorial5->content!!}
-                                                @else
-                                                    <div style="text-align: center;">
-                                                        <h3>暂无教程</h3>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                            <div class="tab-pane" id="tools6">
-                                                @if($tutorial6)
-                                                    {!!$tutorial6->content!!}
-                                                @else
-                                                    <div style="text-align: center;">
-                                                        <h3>暂无教程</h3>
-                                                    </div>
-                                                @endif
-                                            </div>
+	                                        @foreach ($tutorialList as $tutorial)
+		                                        @if($loop->iteration == 4 && (Agent::is('iPhone') || Agent::is('iPad')))
+			                                        @if(Agent::is('Safari'))
+				                                        <ul class=" list-paddingleft-2">
+					                                        <li><a href="{{$ipa_list}}" target="_blank">点击此处在线安装</a></li>
+				                                        </ul>
+			                                        @else
+				                                        <ul class=" list-paddingleft-2">
+					                                        <li><a href="javascript:onlineInstallWarning();">点击此处在线安装</a></li>
+				                                        </ul>
+			                                        @endif
+		                                        @else
+			                                        <ul class=" list-paddingleft-2">
+				                                        <li> 请使用 Safari浏览器 访问本页面</li>
+			                                        </ul>
+		                                        @endif
+		                                        <div class="tab-pane @if($loop->first)active @endif" id="tools{{$loop->iteration}}">
+			                                        {!!$tutorial->content!!}
+		                                        </div>
+	                                        @endforeach
                                         </div>
                                     </div>
                                 </div>
