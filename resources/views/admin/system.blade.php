@@ -337,7 +337,7 @@
                                                                         <option value="{{$label->id}}" @if(in_array($label->id, explode(',', $initial_labels_for_user))) selected @endif>{{$label->name}}</option>
                                                                     @endforeach
                                                                 </select>
-                                                                <span class="help-block"> 注册用户时的初始标签 </span>
+                                                                <span class="help-block"> 注册用户时的初始标签，标签用于关联节点 </span>
                                                             </div>
                                                         </div>
                                                         <div class="col-md-6 col-sm-6 col-xs-12">
@@ -377,6 +377,34 @@
                                                                     </span>
                                                                 </div>
                                                                 <span class="help-block"> 客户端订阅时取得几个节点，为0时返回全部节点 </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                                            <label for="user_invite_days" class="col-md-3 control-label">邀请码有效期（用户）</label>
+                                                            <div class="col-md-9">
+                                                                <div class="input-group">
+                                                                    <input class="form-control" type="text" name="user_invite_days" value="{{$user_invite_days}}" id="user_invite_days" />
+                                                                    <span class="input-group-addon">天</span>
+                                                                    <span class="input-group-btn">
+                                                                        <button class="btn btn-success" type="button" onclick="setUserInviteDays()">修改</button>
+                                                                    </span>
+                                                                </div>
+                                                                <span class="help-block"> 用户自行生成邀请的有效期 </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                                            <label for="admin_invite_days" class="col-md-3 control-label">邀请码有效期（管理员）</label>
+                                                            <div class="col-md-9">
+                                                                <div class="input-group">
+                                                                    <input class="form-control" type="text" name="admin_invite_days" value="{{$admin_invite_days}}" id="admin_invite_days" />
+                                                                    <span class="input-group-addon">天</span>
+                                                                    <span class="input-group-btn">
+                                                                        <button class="btn btn-success" type="button" onclick="setAdminInviteDays()">修改</button>
+                                                                    </span>
+                                                                </div>
+                                                                <span class="help-block"> 管理员生成邀请码的有效期 </span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -2514,6 +2542,50 @@
                 _token: '{{csrf_token()}}',
                 name: 'subscribe_max',
                 value: subscribe_max
+            }, function (ret) {
+                layer.msg(ret.message, {time: 1000}, function () {
+                    if (ret.status == 'fail') {
+                        window.location.reload();
+                    }
+                });
+            });
+        }
+
+        // 设置用户生成邀请码有效期
+        function setUserInviteDays() {
+            var user_invite_days = parseInt($("#user_invite_days").val());
+
+            if (user_invite_days <= 0) {
+                layer.msg('必须大于0', {time: 1000});
+                return;
+            }
+
+            $.post("{{url('admin/setConfig')}}", {
+                _token: '{{csrf_token()}}',
+                name: 'user_invite_days',
+                value: user_invite_days
+            }, function (ret) {
+                layer.msg(ret.message, {time: 1000}, function () {
+                    if (ret.status == 'fail') {
+                        window.location.reload();
+                    }
+                });
+            });
+        }
+
+        // 设置管理员生成邀请码有效期
+        function setAdminInviteDays() {
+            var admin_invite_days = parseInt($("#admin_invite_days").val());
+
+            if (admin_invite_days <= 0) {
+                layer.msg('必须大于0', {time: 1000});
+                return;
+            }
+
+            $.post("{{url('admin/setConfig')}}", {
+                _token: '{{csrf_token()}}',
+                name: 'admin_invite_days',
+                value: admin_invite_days
             }, function (ret) {
                 layer.msg(ret.message, {time: 1000}, function () {
                     if (ret.status == 'fail') {
