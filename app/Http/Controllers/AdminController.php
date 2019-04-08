@@ -921,30 +921,33 @@ class AdminController extends Controller
     public function addArticle(Request $request)
     {
         if ($request->isMethod('POST')) {
-            // LOGO
-            $logo = '';
-            if ($request->hasFile('logo')) {
-                $file = $request->file('logo');
-                $fileType = $file->getClientOriginalExtension();
-
-                // 验证文件合法性
-                if (!in_array($fileType, ['jpg', 'png', 'jpeg', 'bmp'])) {
-                    Session::flash('errorMsg', 'LOGO不合法');
-
-                    return Redirect::back()->withInput();
-                }
-
-                $logoName = date('YmdHis') . mt_rand(1000, 2000) . '.' . $fileType;
-                $move = $file->move(base_path() . '/public/upload/image/', $logoName);
-                $logo = $move ? '/upload/image/' . $logoName : '';
-            }
-
             $article = new Article();
             $article->title = $request->get('title');
             $article->type = $request->get('type', 1);
             $article->author = '管理员';
             $article->summary = $request->get('summary');
-            $article->logo = $logo;
+	        // LOGO
+            if($article->type == 4){
+	            $article->logo = $request->get('logo');
+            } else {
+	            $logo = '';
+	            if ($request->hasFile('logo')) {
+		            $file = $request->file('logo');
+		            $fileType = $file->getClientOriginalExtension();
+
+		            // 验证文件合法性
+		            if (!in_array($fileType, ['jpg', 'png', 'jpeg', 'bmp'])) {
+			            Session::flash('errorMsg', 'LOGO不合法');
+
+			            return Redirect::back()->withInput();
+		            }
+
+		            $logoName = date('YmdHis') . mt_rand(1000, 2000) . '.' . $fileType;
+		            $move = $file->move(base_path() . '/public/upload/image/', $logoName);
+		            $logo = $move ? '/upload/image/' . $logoName : '';
+	            }
+	            $article->logo = $logo;
+            }
             $article->content = $request->get('editorValue');
             $article->sort = $request->get('sort', 0);
             $article->save();
@@ -974,21 +977,25 @@ class AdminController extends Controller
             $sort = $request->get('sort');
 
             // 商品LOGO
-            $logo = '';
-            if ($request->hasFile('logo')) {
-                $file = $request->file('logo');
-                $fileType = $file->getClientOriginalExtension();
+            if($type == 4){
+	            $logo = $request->get('logo');
+            } else {
+	            $logo = '';
+	            if ($request->hasFile('logo')) {
+		            $file = $request->file('logo');
+		            $fileType = $file->getClientOriginalExtension();
 
-                // 验证文件合法性
-                if (!in_array($fileType, ['jpg', 'png', 'jpeg', 'bmp'])) {
-                    Session::flash('errorMsg', 'LOGO不合法');
+		            // 验证文件合法性
+		            if (!in_array($fileType, ['jpg', 'png', 'jpeg', 'bmp'])) {
+			            Session::flash('errorMsg', 'LOGO不合法');
 
-                    return Redirect::back()->withInput();
-                }
+			            return Redirect::back()->withInput();
+		            }
 
-                $logoName = date('YmdHis') . mt_rand(1000, 2000) . '.' . $fileType;
-                $move = $file->move(base_path() . '/public/upload/image/', $logoName);
-                $logo = $move ? '/upload/image/' . $logoName : '';
+		            $logoName = date('YmdHis') . mt_rand(1000, 2000) . '.' . $fileType;
+		            $move = $file->move(base_path() . '/public/upload/image/', $logoName);
+		            $logo = $move ? '/upload/image/' . $logoName : '';
+	            }
             }
 
             $data = [

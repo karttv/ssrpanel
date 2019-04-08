@@ -69,13 +69,13 @@
                                         <input type="hidden" name="_token" value="{{csrf_token()}}">
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" id="file">
                                     <label class="control-label col-md-2">简介</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control" name="summary" id="summary" placeholder="">
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" id="file">
                                     <label class="control-label col-md-2">排序</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control" name="sort" id="sort" value="0" required />
@@ -84,7 +84,11 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label col-md-2">LOGO</label>
-                                    <div class="col-md-6">
+                                    <div class="col-md-6" id="icon" style="display: none;">
+                                        <input type="text" class="form-control" name="logo" id="logo" value="0" />
+                                        <span class="help-block"><a href="https://fontawesome.com/v4.7.0/icons/" target="_blank">图标列表</a> | 格式： fa-windows</span>
+                                    </div>
+                                    <div class="col-md-6" id="file">
                                         <div class="fileinput fileinput-new" data-provides="fileinput">
                                             <div class="fileinput-new thumbnail" style="width: 200px; height: 150px;">
                                                 <img src="/assets/images/noimage.png" alt="" /> </div>
@@ -132,6 +136,17 @@
     <script src="/js/ueditor/ueditor.all.js" type="text/javascript" charset="utf-8"></script>
 
     <script type="text/javascript">
+        $("input:radio[name='type']").on('change', function () {
+            var type = parseInt($(this).val());
+            if (type == 4) {
+                $("#icon").show();
+                $("#file").hide();
+            } else {
+                $("#icon").hide();
+                $("#file").show();
+            }
+        });
+
         // 百度富文本编辑器
         var ue = UE.getEditor('editor', {
             toolbars:[['source','undo','redo','bold','italic','underline','insertimage','insertvideo','lineheight','fontfamily','fontsize','justifyleft','justifycenter','justifyright','justifyjustify','forecolor','backcolor','link','unlink']],

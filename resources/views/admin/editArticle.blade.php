@@ -37,19 +37,22 @@
                                     <div class="col-md-6">
                                         <div class="mt-radio-inline">
                                             <label class="mt-radio">
-                                                <input type="radio" name="type" value="1" {{$article->type == '1' ? 'checked' : ''}}> 文章
-                                                <span></span>
-                                            </label>
-                                            <label class="mt-radio">
-                                                <input type="radio" name="type" value="2" {{$article->type == '2' ? 'checked' : ''}}> 公告
-                                                <span></span>
-                                            </label>
-                                            <label class="mt-radio">
-                                                <input type="radio" name="type" value="3" {{$article->type == '3' ? 'checked' : ''}}> 购买说明
-                                                <span></span>
-                                            </label>
-                                            <label class="mt-radio">
-                                                <input type="radio" name="type" value="4" {{$article->type == '4' ? 'checked' : ''}}> 使用教程
+                                                <input type="radio" name="type" value="{{$article->type}}" checked>
+                                                @switch($article->type)
+                                                    @case(1)
+                                                    文章
+                                                    @break
+                                                    @case(2)
+                                                    公告
+                                                    @break
+                                                    @case(3)
+                                                    购买说明
+                                                    @break
+                                                    @case(4)
+                                                    使用教程
+                                                    @break
+                                                    @default
+                                                @endswitch
                                                 <span></span>
                                             </label>
                                         </div>
@@ -63,43 +66,52 @@
                                         <input type="hidden" name="_token" value="{{csrf_token()}}">
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <label class="control-label col-md-2">简介</label>
-                                    <div class="col-md-6">
-                                        <input type="text" class="form-control" name="summary" value="{{$article->summary}}" id="summary" placeholder="">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="control-label col-md-2">排序</label>
-                                    <div class="col-md-6">
-                                        <input type="text" class="form-control" name="sort" value="{{$article->sort}}" id="sort" required />
-                                        <span class="help-block"> 值越高显示时越靠前 </span>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="control-label col-md-2">LOGO</label>
-                                    <div class="col-md-6">
-                                        <div class="fileinput fileinput-new" data-provides="fileinput">
-                                            <div class="fileinput-new thumbnail" style="width: 200px; height: 150px;">
-                                                @if($article->logo)
-                                                    <img src="{{$article->logo}}" alt="" />
-                                                @else
-                                                    <img src="/assets/images/noimage.png" alt="" />
-                                                @endif
-                                            </div>
-                                            <div class="fileinput-preview fileinput-exists thumbnail" style="max-width: 200px; max-height: 150px;"> </div>
-                                            <div>
+                                @if($article->type != '4')
+		                            <div class="form-group">
+			                            <label class="control-label col-md-2">简介</label>
+			                            <div class="col-md-6">
+				                            <input type="text" class="form-control" name="summary" value="{{$article->summary}}" id="summary" placeholder="">
+			                            </div>
+		                            </div>
+		                            <div class="form-group">
+			                            <label class="control-label col-md-2">排序</label>
+			                            <div class="col-md-6">
+				                            <input type="text" class="form-control" name="sort" value="{{$article->sort}}" id="sort" required />
+				                            <span class="help-block"> 值越高显示时越靠前 </span>
+			                            </div>
+		                            </div>
+	                            @endif
+	                            <div class="form-group">
+		                            <label class="control-label col-md-2">>LOGO/图标</label>
+		                            <div class="col-md-6">
+			                            @if($article->type == '4')
+				                            <div class="input-group">
+					                            <input type="txt" id="logo" name="logo" value="{{$article->logo}}"/>
+					                            @if($article->logo) <span class="input-group-addon"><i class="fa {{$article->logo}}" aria-hidden="true"></i></span> @endif
+				                            </div>
+			                            @else
+				                            <div class="fileinput fileinput-new" data-provides="fileinput">
+					                            <div class="fileinput-new thumbnail" style="width: 200px; height: 150px;">
+						                            @if($article->logo)
+							                            <img src="{{$article->logo}}" alt=""/>
+						                            @else
+							                            <img src="/assets/images/noimage.png" alt=""/>
+						                            @endif
+					                            </div>
+					                            <div class="fileinput-preview fileinput-exists thumbnail" style="max-width: 200px; max-height: 150px;"></div>
+					                            <div>
                                                 <span class="btn default btn-file">
                                                     <span class="fileinput-new"> 选择 </span>
                                                     <span class="fileinput-exists"> 更换 </span>
                                                     <input type="file" name="logo" id="logo">
                                                 </span>
-                                                <a href="javascript:;" class="btn red fileinput-exists" data-dismiss="fileinput"> 移除 </a>
-                                            </div>
-                                        </div>
-                                        <span class="help-block"> 推荐尺寸：100x75 </span>
-                                    </div>
-                                </div>
+						                            <a href="javascript:;" class="btn red fileinput-exists" data-dismiss="fileinput"> 移除 </a>
+					                            </div>
+				                            </div>
+				                            <span class="help-block"> 推荐尺寸：100x75 </span>
+			                            @endif
+		                            </div>
+	                            </div>
                                 <div class="form-group">
                                     <label class="control-label col-md-2">内容</label>
                                     <div class="col-md-10">
