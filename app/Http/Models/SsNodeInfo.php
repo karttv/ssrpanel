@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * SS节点负载情况
  * Class SsNodeInfo
+ *
  * @package App\Http\Models
+ * @mixin \Eloquent
  */
 class SsNodeInfo extends Model
 {

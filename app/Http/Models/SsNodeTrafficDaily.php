@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * 节点每日流量统计
  * Class SsUserTrafficDaily
+ *
  * @package App\Http\Models
+ * @mixin \Eloquent
  */
 class SsNodeTrafficDaily extends Model
 {

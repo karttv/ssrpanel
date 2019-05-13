@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * SS节点用户在线情况
  * Class SsNodeOnlineLog
+ *
  * @package App\Http\Models
+ * @mixin \Eloquent
  */
 class SsNodeOnlineLog extends Model
 {

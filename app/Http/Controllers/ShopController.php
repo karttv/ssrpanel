@@ -3,13 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Http\Models\Goods;
+use App\Http\Models\GoodsLabel;
+use App\Http\Models\Label;
 use Illuminate\Http\Request;
 use Response;
 use Redirect;
+use Session;
+use DB;
 
 /**
  * 商店控制器
- * Class LoginController
+ *
+ * Class ShopController
+ *
  * @package App\Http\Controllers
  */
 class ShopController extends Controller
@@ -17,39 +23,52 @@ class ShopController extends Controller
     // 商品列表
     public function goodsList(Request $request)
     {
-        $goodsList = Goods::query()->where('is_del', 0)->orderBy('id', 'desc')->paginate(10);
-        foreach ($goodsList as $goods) {
-            $goods->price = $goods->price / 100;
-            $goods->traffic = flowAutoShow($goods->traffic * 1048576);
-        }
+        $view['goodsList'] = Goods::query()->orderBy('id', 'desc')->paginate(10);
 
-        $view['goodsList'] = $goodsList;
-
-        return Response::view('shop/goodsList', $view);
+        return Response::view('shop.goodsList', $view);
     }
 
     // 添加商品
     public function addGoods(Request $request)
     {
-        if ($request->method() == 'POST') {
+        if ($request->isMethod('POST')) {
             $name = $request->get('name');
             $desc = $request->get('desc', '');
             $traffic = $request->get('traffic');
-            $price = $request->get('price');
-            $score = $request->get('score', 0);
-            $type = $request->get('type', 1);
-            $days = $request->get('days', 30);
+            $price = round($request->get('price'), 2);
+            $score = intval($request->get('score', 0));
+            $type = intval($request->get('type', 1));
+            $days = intval($request->get('days', 90));
+            $color = trim($request->get('color', 0));
+            $sort = intval($request->get('sort', 0));
+            $is_hot = intval($request->get('is_hot', 0));
+            $is_limit = intval($request->get('is_limit', 0));
+            $labels = $request->get('labels');
             $status = $request->get('status');
 
-            if (empty($name) || empty($traffic) || $price == '') {
-                $request->session()->flash('errorMsg', '请填写完整');
+            if (empty($name) || empty($traffic)) {
+                Session::flash('errorMsg', '请填写完整');
 
                 return Redirect::back()->withInput();
             }
 
-            // 套餐有效天数必须大于30天
-            if ($type == 2 && $days < 30) {
-                $request->session()->flash('errorMsg', '套餐有效天数必须不能少于30天');
+            // 套餐必须有价格
+            if ($type == 2 && $price <= 0) {
+                Session::flash('errorMsg', '套餐价格必须大于0');
+
+                return Redirect::back()->withInput();
+            }
+
+            // 套餐有效天数必须大于90天
+            if ($type == 2 && $days < 90) {
+                Session::flash('errorMsg', '套餐有效天数必须不能少于90天');
+
+                return Redirect::back()->withInput();
+            }
+
+            // 流量不能超过10TB
+            if (in_array($type, [1, 2]) && $traffic > 10240000) {
+                Session::flash('errorMsg', '内含流量不能超过10TB');
 
                 return Redirect::back()->withInput();
             }
@@ -59,36 +78,65 @@ class ShopController extends Controller
             if ($request->hasFile('logo')) {
                 $file = $request->file('logo');
                 $fileType = $file->getClientOriginalExtension();
+
+                // 验证文件合法性
+                if (!in_array($fileType, ['jpg', 'png', 'jpeg', 'bmp'])) {
+                    Session::flash('errorMsg', 'LOGO不合法');
+
+                    return Redirect::back()->withInput();
+                }
+
                 $logoName = date('YmdHis') . mt_rand(1000, 2000) . '.' . $fileType;
-                $move = $file->move(base_path() . '/public/upload/image/goods/', $logoName);
-                $logo = $move ? '/upload/image/goods/' . $logoName : '';
+                $move = $file->move(base_path() . '/public/upload/image/', $logoName);
+                $logo = $move ? '/upload/image/' . $logoName : '';
             }
 
-            $obj = new Goods();
-            $obj->name = $name;
-            $obj->desc = $desc;
-            $obj->logo = $logo;
-            $obj->traffic = $traffic;
-            $obj->price = $price * 100; // 单位分
-            $obj->score = $score;
-            $obj->type = $type;
-            $obj->days = $days;
-            $obj->status = $status;
-            $obj->save();
+            DB::beginTransaction();
+            try {
+                $goods = new Goods();
+                $goods->name = $name;
+                $goods->desc = $desc;
+                $goods->logo = $logo;
+                $goods->traffic = $traffic;
+                $goods->price = $price;
+                $goods->score = $score;
+                $goods->type = $type;
+                $goods->days = $days;
+                $goods->color = $color;
+                $goods->sort = $sort;
+                $goods->is_hot = $is_hot;
+                $goods->is_limit = $is_limit;
+                $goods->status = $status;
+                $goods->save();
 
-            if ($obj->id) {
                 // 生成SKU
-                $obj->sku = 'S0000' . $obj->id;
-                $obj->save();
+                $goods->sku = 'S0000' . $goods->id;
+                $goods->save();
 
-                $request->session()->flash('successMsg', '添加成功');
-            } else {
-                $request->session()->flash('errorMsg', '添加失败');
+                // 生成商品标签
+                if (!empty($labels)) {
+                    foreach ($labels as $label) {
+                        $goodsLabel = new GoodsLabel();
+                        $goodsLabel->goods_id = $goods->id;
+                        $goodsLabel->label_id = $label;
+                        $goodsLabel->save();
+                    }
+                }
+
+                Session::flash('successMsg', '添加成功');
+
+                DB::commit();
+            } catch (\Exception $e) {
+                Session::flash('errorMsg', '添加失败');
+
+                DB::rollBack();
             }
 
             return Redirect::to('shop/addGoods');
         } else {
-            return Response::view('shop/addGoods');
+            $view['label_list'] = Label::query()->orderBy('sort', 'desc')->orderBy('id', 'asc')->get();
+
+            return Response::view('shop.addGoods', $view);
         }
     }
 
@@ -97,18 +145,33 @@ class ShopController extends Controller
     {
         $id = $request->get('id');
 
-        if ($request->method() == 'POST') {
+        if ($request->isMethod('POST')) {
             $name = $request->get('name');
             $desc = $request->get('desc');
-            $traffic = $request->get('traffic');
-            $price = $request->get('price');
-            $score = $request->get('score', 0);
-            $type = $request->get('type', 1);
-            $days = $request->get('days', 30);
+            $price = round($request->get('price'), 2);
+            $labels = $request->get('labels');
+            $color = trim($request->get('color', 0));
+            $sort = intval($request->get('sort', 0));
+            $is_hot = intval($request->get('is_hot', 0));
+            $is_limit = intval($request->get('is_limit', 0));
             $status = $request->get('status');
 
-            if (empty($name) || empty($traffic) || $price == '') {
-                $request->session()->flash('errorMsg', '请填写完整');
+            $goods = Goods::query()->where('id', $id)->first();
+            if (!$goods) {
+                Session::flash('errorMsg', '商品不存在');
+
+                return Redirect::back();
+            }
+
+            if (empty($name)) {
+                Session::flash('errorMsg', '请填写完整');
+
+                return Redirect::back()->withInput();
+            }
+
+            // 套餐必须有价格
+            if ($goods->type == 2 && $price <= 0) {
+                Session::flash('errorMsg', '套餐价格必须大于0');
 
                 return Redirect::back()->withInput();
             }
@@ -118,39 +181,75 @@ class ShopController extends Controller
             if ($request->hasFile('logo')) {
                 $file = $request->file('logo');
                 $fileType = $file->getClientOriginalExtension();
+
+                // 验证文件合法性
+                if (!in_array($fileType, ['jpg', 'png', 'jpeg', 'bmp'])) {
+                    Session::flash('errorMsg', 'LOGO不合法');
+
+                    return Redirect::back()->withInput();
+                }
+
                 $logoName = date('YmdHis') . mt_rand(1000, 2000) . '.' . $fileType;
-                $move = $file->move(base_path() . '/public/upload/image/goods/', $logoName);
-                $logo = $move ? '/upload/image/goods/' . $logoName : '';
+                $move = $file->move(base_path() . '/public/upload/image/', $logoName);
+                $logo = $move ? '/upload/image/' . $logoName : '';
             }
 
-            $data = [
-                'name'    => $name,
-                'desc'    => $desc,
-                'logo'    => $logo,
-                'traffic' => $traffic,
-                'price'   => $price * 100, // 单位分
-                'score'   => $score,
-                'type'    => $type,
-                'days'    => $days,
-                'status'  => $status
-            ];
-            $ret = Goods::query()->where('id', $id)->update($data);
-            if ($ret) {
-                $request->session()->flash('successMsg', '编辑成功');
-            } else {
-                $request->session()->flash('errorMsg', '编辑失败');
+            DB::beginTransaction();
+            try {
+                $data = [
+                    'name'     => $name,
+                    'desc'     => $desc,
+                    'price'    => $price * 100,
+                    'sort'     => $sort,
+                    'color'    => $color,
+                    'is_hot'   => $is_hot,
+                    'is_limit' => $is_limit,
+                    'status'   => $status
+                ];
+
+                if ($logo) {
+                    $data['logo'] = $logo;
+                }
+
+                Goods::query()->where('id', $id)->update($data);
+
+                // 先删除该商品所有的标签
+                GoodsLabel::query()->where('goods_id', $id)->delete();
+
+                // 生成商品标签
+                if (!empty($labels)) {
+                    foreach ($labels as $label) {
+                        $goodsLabel = new GoodsLabel();
+                        $goodsLabel->goods_id = $id;
+                        $goodsLabel->label_id = $label;
+                        $goodsLabel->save();
+                    }
+                }
+
+                Session::flash('successMsg', '编辑成功');
+
+                DB::commit();
+            } catch (\Exception $e) {
+                Session::flash('errorMsg', '编辑失败');
+
+                DB::rollBack();
             }
 
             return Redirect::to('shop/editGoods?id=' . $id);
         } else {
-            $goods = Goods::query()->where('id', $id)->first();
-            if (!empty($goods)) {
-                $goods->price = $goods->price / 100;
+            $goods = Goods::query()->with(['label'])->where('id', $id)->first();
+            if ($goods) {
+                $label = [];
+                foreach ($goods->label as $vo) {
+                    $label[] = $vo->label_id;
+                }
+                $goods->labels = $label;
             }
 
             $view['goods'] = $goods;
+            $view['label_list'] = Label::query()->orderBy('sort', 'desc')->orderBy('id', 'asc')->get();
 
-            return Response::view('shop/editGoods', $view);
+            return Response::view('shop.editGoods', $view);
         }
     }
 
@@ -159,7 +258,7 @@ class ShopController extends Controller
     {
         $id = $request->get('id');
 
-        Goods::query()->where('id', $id)->update(['is_del' => 1]);
+        Goods::query()->where('id', $id)->delete();
 
         return Response::json(['status' => 'success', 'data' => '', 'message' => '删除成功']);
     }

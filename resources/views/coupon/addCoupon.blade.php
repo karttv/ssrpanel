@@ -1,10 +1,7 @@
 @extends('admin.layouts')
-
 @section('css')
     <link href="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
 @endsection
-@section('title', '控制面板')
 @section('content')
     <!-- BEGIN CONTENT BODY -->
     <div class="page-content" style="padding-top:0;">
@@ -24,7 +21,7 @@
                     </div>
                 @endif
                 <!-- BEGIN PORTLET-->
-                <div class="portlet light form-fit bordered">
+                <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
                             <span class="caption-subject font-dark sbold uppercase">生成卡券</span>
@@ -36,15 +33,15 @@
                         <form action="{{url('coupon/addCoupon')}}" method="post" enctype="multipart/form-data" class="form-horizontal" role="form">
                             <div class="form-body">
                                 <div class="form-group">
-                                    <label class="control-label col-md-2">卡券名称</label>
-                                    <div class="col-md-6">
-                                        <input type="text" class="form-control" name="name" value="" id="name" placeholder="" required>
+                                    <label class="control-label col-md-3">卡券名称</label>
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control" name="name" value="" id="name" autocomplete="off" required>
                                         <input type="hidden" name="_token" value="{{csrf_token()}}" />
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-2">LOGO</label>
-                                    <div class="col-md-9">
+                                    <label class="control-label col-md-3">LOGO</label>
+                                    <div class="col-md-4">
                                         <div class="fileinput fileinput-new" data-provides="fileinput">
                                             <div class="fileinput-new thumbnail" style="width: 200px; height: 150px;">
                                                 <img src="/assets/images/noimage.png" alt="" />
@@ -62,8 +59,8 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-2">类型</label>
-                                    <div class="col-md-6">
+                                    <label class="control-label col-md-3">类型</label>
+                                    <div class="col-md-4">
                                         <div class="mt-radio-inline">
                                             <label class="mt-radio">
                                                 <input type="radio" name="type" value="1" checked> 抵用券
@@ -81,8 +78,8 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-2">用途</label>
-                                    <div class="col-md-6">
+                                    <label class="control-label col-md-3">用途</label>
+                                    <div class="col-md-4">
                                         <div class="mt-radio-inline">
                                             <label class="mt-radio">
                                                 <input type="radio" name="usage" value="1" id="usage1" checked> 仅限一次性使用
@@ -96,47 +93,47 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-2">数量</label>
-                                    <div class="col-md-3">
+                                    <label class="control-label col-md-3">数量</label>
+                                    <div class="col-md-4">
                                         <div class="input-group">
-                                            <input type="text" class="form-control" name="num" value="{{Request::old('num')}}" id="num" placeholder="" required>
+                                            <input type="text" class="form-control" name="num" value="{{Request::old('num')}}" id="num" autocomplete="off" required>
                                             <span class="input-group-addon">张</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-2">金额</label>
-                                    <div class="col-md-3">
+                                    <label class="control-label col-md-3">金额</label>
+                                    <div class="col-md-4">
                                         <div class="input-group">
-                                            <input type="text" class="form-control" name="amount" value="{{Request::old('amount')}}" id="amount" placeholder="" required>
+                                            <input type="text" class="form-control" name="amount" value="{{Request::old('amount')}}" id="amount" autocomplete="off" required>
                                             <span class="input-group-addon">元</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-group hide">
-                                    <label class="control-label col-md-2">折扣</label>
-                                    <div class="col-md-3">
+                                    <label class="control-label col-md-3">折扣</label>
+                                    <div class="col-md-4">
                                         <div class="input-group">
-                                            <input type="text" class="form-control" name="discount" value="{{Request::old('discount')}}" id="discount" placeholder="">
+                                            <input type="text" class="form-control" name="discount" value="{{Request::old('discount')}}" id="discount" autocomplete="off" placeholder="">
                                             <span class="input-group-addon">折</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-2">有效期</label>
-                                    <div class="col-md-6">
+                                    <label class="control-label col-md-3">有效期</label>
+                                    <div class="col-md-4">
                                         <div class="input-group input-large input-daterange">
-                                            <input type="text" class="form-control" name="available_start" value="{{Request::old('available_start')}}" id="available_start" required>
+                                            <input type="text" class="form-control" name="available_start" value="{{Request::old('available_start')}}" id="available_start" autocomplete="off" required>
                                             <span class="input-group-addon"> 至 </span>
-                                            <input type="text" class="form-control" name="available_end" value="{{Request::old('available_end')}}" id="available_end" required>
+                                            <input type="text" class="form-control" name="available_end" value="{{Request::old('available_end')}}" id="available_end" autocomplete="off" required>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="form-actions">
                                 <div class="row">
-                                    <div class="col-md-offset-2 col-md-9">
-                                        <button type="submit" class="btn green"> <i class="fa fa-check"></i> 提 交</button>
+                                    <div class="col-md-offset-3 col-md-4">
+                                        <button type="submit" class="btn green">提交</button>
                                     </div>
                                 </div>
                             </div>
@@ -152,20 +149,18 @@
     <!-- END CONTENT BODY -->
 @endsection
 @section('script')
-    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootbox/bootbox.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/laydate/laydate.js" type="text/javascript"></script>
 
     <script type="text/javascript">
-        // 有效期
-        $('.input-daterange input').each(function() {
-            $(this).datepicker({
-                language: 'zh-CN',
-                autoclose: true,
-                todayHighlight: true,
-                format: 'yyyy-mm-dd'
-            });
+        // 有效期-开始
+        laydate.render({
+            elem: '#available_start'
+        });
+
+        // 有效期-结束
+        laydate.render({
+            elem: '#available_end'
         });
 
         // 根据类型显示

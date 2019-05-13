@@ -1,10 +1,8 @@
 @extends('user.layouts')
-
 @section('css')
     <link href="/assets/global/plugins/datatables/datatables.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css" rel="stylesheet" type="text/css" />
 @endsection
-@section('title', trans('home.panel'))
 @section('content')
     <!-- BEGIN CONTENT BODY -->
     <div class="page-content" style="padding-top:0;">
@@ -42,7 +40,7 @@
                                         </div>
                                         <div class="timeline-body-head-actions"></div>
                                     </div>
-                                    <div class="timeline-body-content">
+                                    <div class="timeline-body-content" style="word-wrap: break-word;">
                                         <span class="font-grey-cascade"> {!! $ticket->content !!} </span>
                                     </div>
                                 </div>
@@ -51,7 +49,7 @@
                                 @foreach ($replyList as $reply)
                                     <div class="timeline-item">
                                         <div class="timeline-badge">
-                                            @if ($reply->user->is_admin)
+                                            @if($reply->user->is_admin)
                                                 <img class="timeline-badge-userpic" src="/assets/images/avatar.png">
                                             @else
                                                 <div class="timeline-icon">
@@ -72,7 +70,7 @@
                                                 </div>
                                                 <div class="timeline-body-head-actions"></div>
                                             </div>
-                                            <div class="timeline-body-content">
+                                            <div class="timeline-body-content" style="word-wrap: break-word;">
                                                 <span class="font-grey-cascade"> {!! $reply->content !!} </span>
                                             </div>
                                         </div>
@@ -85,7 +83,7 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <script id="editor" type="text/plain" style="padding-bottom:10px;"></script>
-                                    <button class="btn blue" type="button" onclick="replyTicket()"> {{trans('home.ticket_reply_button')}} </button>
+                                    <button type="button" class="btn blue" onclick="replyTicket()"> {{trans('home.ticket_reply_button')}} </button>
                                 </div>
                             </div>
                         @endif
@@ -119,7 +117,6 @@
 @section('script')
     <script src="/js/ueditor/ueditor.config.js" type="text/javascript" charset="utf-8"></script>
     <script src="/js/ueditor/ueditor.all.js" type="text/javascript" charset="utf-8"></script>
-    <script src="/js/layer/layer.js" type="text/javascript"></script>
 
     <script type="text/javascript">
         @if($ticket->status != 2)
@@ -139,38 +136,39 @@
         function closeTicket() {
             $.ajax({
                 type: "POST",
-                url: "{{url('user/closeTicket')}}",
+                url: "{{url('closeTicket')}}",
                 async: true,
                 data: {_token:'{{csrf_token()}}', id:'{{$ticket->id}}'},
                 dataType: 'json',
                 success: function (ret) {
-                    layer.msg(ret.message, function() {
+                    layer.msg(ret.message, {time:1000}, function() {
                         if (ret.status == 'success') {
-                            window.location.href = '{{url('user/ticketList')}}';
+                            window.location.href = '{{url('tickets')}}';
                         }
                     });
                 }
             });
         }
-
+      
         // 回复工单
         function replyTicket() {
             var content = UE.getEditor('editor').getContent();
 
-            $.ajax({
-                type: "POST",
-                url: "{{url('user/replyTicket')}}",
-                async: true,
-                data: {_token:'{{csrf_token()}}', id:'{{$ticket->id}}', content:content},
-                dataType: 'json',
-                success: function (ret) {
+            if (content == "" || content == undefined) {
+                layer.alert('您未填写工单内容', {icon: 2, title:'提示'});
+                return false;
+            }
+            
+            layer.confirm('确定回复工单？', {icon: 3, title:'提示'}, function(index) {
+                $.post("{{url('replyTicket')}}",{_token:'{{csrf_token()}}', id:'{{$ticket->id}}', content:content}, function(ret) {
                     layer.msg(ret.message, {time:1000}, function() {
                         if (ret.status == 'success') {
                             window.location.reload();
                         }
                     });
-                }
+                });
+                layer.close(index);
             });
-        }
+        }         
     </script>
 @endsection

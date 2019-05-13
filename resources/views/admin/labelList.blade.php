@@ -1,10 +1,8 @@
 @extends('admin.layouts')
-
 @section('css')
     <link href="/assets/global/plugins/datatables/datatables.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css" rel="stylesheet" type="text/css" />
 @endsection
-@section('title', '控制面板')
 @section('content')
     <!-- BEGIN CONTENT BODY -->
     <div class="page-content" style="padding-top:0;">
@@ -16,6 +14,7 @@
                     <div class="portlet-title">
                         <div class="caption font-dark">
                             <span class="caption-subject bold uppercase"> 标签列表 </span>
+                            <small>标签影响用户查看/订阅节点信息（用户和节点通过标签进行关联）</small>
                         </div>
                         <div class="actions">
                             <div class="btn-group">
@@ -24,8 +23,8 @@
                         </div>
                     </div>
                     <div class="portlet-body">
-                        <div class="table-scrollable">
-                            <table class="table table-striped table-bordered table-hover table-checkable order-column">
+                        <div class="table-scrollable table-scrollable-borderless">
+                            <table class="table table-hover table-light">
                                 <thead>
                                 <tr>
                                     <th> # </th>
@@ -33,13 +32,13 @@
                                     <th> 关联用户数 </th>
                                     <th> 关联节点数 </th>
                                     <th> 排序 </th>
-                                    <th> 操作 </th>
+                                    <th style="text-align: center;"> 操作 </th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 @if($labelList->isEmpty())
                                     <tr>
-                                        <td colspan="6">暂无数据</td>
+                                        <td colspan="6" style="text-align: center;">暂无数据</td>
                                     </tr>
                                 @else
                                     @foreach($labelList as $label)
@@ -49,13 +48,9 @@
                                             <td> {{$label->userCount}} </td>
                                             <td> {{$label->nodeCount}} </td>
                                             <td> {{$label->sort}} </td>
-                                            <td>
-                                                <button type="button" class="btn btn-sm blue btn-outline" onclick="editLabel('{{$label->id}}')">
-                                                    <i class="fa fa-pencil"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-sm red btn-outline" onclick="delLabel('{{$label->id}}')">
-                                                    <i class="fa fa-trash"></i>
-                                                </button>
+                                            <td style="text-align: center;">
+                                                <button type="button" class="btn btn-sm blue btn-outline" onclick="editLabel('{{$label->id}}')"> 编辑 </button>
+                                                <button type="button" class="btn btn-sm red btn-outline" onclick="delLabel('{{$label->id}}')"> 删除 </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -83,8 +78,6 @@
     <!-- END CONTENT BODY -->
 @endsection
 @section('script')
-    <script src="/js/layer/layer.js" type="text/javascript"></script>
-
     <script type="text/javascript">
         // 添加标签
         function addLabel() {

@@ -9,7 +9,6 @@
         }
     </style>
 @endsection
-@section('title', '控制面板')
 @section('content')
     <!-- BEGIN CONTENT BODY -->
     <div class="page-content" style="padding-top:0;">
@@ -29,36 +28,62 @@
                         </div>
                     </div>
                     <div class="portlet-body">
-                        <div class="table-scrollable">
-                            <table class="table table-striped table-bordered table-hover table-checkable order-column">
+                        <div class="table-scrollable table-scrollable-borderless">
+                            <table class="table table-hover table-light">
                                 <thead>
                                 <tr>
                                     <th> # </th>
                                     <th> 名称 </th>
                                     <th> 类型 </th>
-                                    <th> 图片 </th>
+                                    <!-- <th> 图片 </th> -->
                                     <th> 内含流量 </th>
                                     <th> 售价 </th>
-                                    <th> 所需积分 </th>
+                                    <!-- <th> 所需积分 </th> -->
+                                    <th> 排序 </th>
+                                    <th> 热销 </th>
+                                    <th> 限购 </th>
                                     <th> 状态 </th>
-                                    <th> 操作 </th>
+                                    <th style="text-align: center;"> 操作 </th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 @if($goodsList->isEmpty())
                                     <tr>
-                                        <td colspan="9">暂无数据</td>
+                                        <td colspan="9" style="text-align: center;">暂无数据</td>
                                     </tr>
                                 @else
                                     @foreach($goodsList as $goods)
                                         <tr class="odd gradeX">
                                             <td> {{$goods->id}} </td>
                                             <td> {{$goods->name}} </td>
-                                            <td> {{$goods->type == 1 ? '流量包' : '套餐'}} </td>
-                                            <td> @if($goods->logo) <a href="{{$goods->logo}}" class="fancybox"><img src="{{$goods->logo}}"/></a> @endif </td>
-                                            <td> {{$goods->traffic}} </td>
-                                            <td> {{$goods->price}} </td>
-                                            <td> {{$goods->score}} </td>
+                                            <td>
+                                                @if($goods->type == 1)
+                                                    流量包
+                                                @elseif($goods->type == 2)
+                                                    套餐
+                                                @else
+                                                    充值
+                                                @endif
+                                            </td>
+                                            <!-- <td> @if($goods->logo) <a href="{{$goods->logo}}" class="fancybox"><img src="{{$goods->logo}}"/></a> @endif </td> -->
+                                            <td> {{$goods->type == 3 ? '' : $goods->traffic_label}} </td>
+                                            <td> {{$goods->price}}元 </td>
+                                            <!-- <td> {{$goods->score}} </td> -->
+                                            <td> {{$goods->sort}} </td>
+                                            <td>
+                                                @if($goods->is_hot)
+                                                    <span class="label label-danger">是</span>
+                                                @else
+                                                    <span class="label label-default">否</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($goods->is_limit)
+                                                    <span class="label label-danger">是</span>
+                                                @else
+                                                    <span class="label label-default">否</span>
+                                                @endif
+                                            </td>
                                             <td>
                                                 @if($goods->status)
                                                     <span class="label label-success">上架</span>
@@ -66,9 +91,9 @@
                                                     <span class="label label-default">下架</span>
                                                 @endif
                                             </td>
-                                            <td>
-                                                <button type="button" class="btn btn-sm blue btn-outline" onclick="editGoods('{{$goods->id}}')">编辑</button>
-                                                <button type="button" class="btn btn-sm red btn-outline" onclick="delGoods('{{$goods->id}}')">删除</button>
+                                            <td style="text-align: center;">
+                                                <button type="button" class="btn btn-sm blue btn-outline" onclick="editGoods('{{$goods->id}}')"> 编辑 </button>
+                                                <button type="button" class="btn btn-sm red btn-outline" onclick="delGoods('{{$goods->id}}')"> 删除 </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -97,7 +122,6 @@
 @endsection
 @section('script')
     <script src="/assets/global/plugins/fancybox/source/jquery.fancybox.js" type="text/javascript"></script>
-    <script src="/js/layer/layer.js" type="text/javascript"></script>
 
     <script type="text/javascript">
         function addGoods() {
@@ -130,6 +154,6 @@
                 openEffect: 'elastic',
                 closeEffect: 'elastic'
             })
-        })
+        });
     </script>
 @endsection
